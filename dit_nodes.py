@@ -12,6 +12,8 @@ import cuda_malloc
 if sys.platform == "linux":
     import colossalai
     from colossalai.cluster import DistCoordinator
+    from opendit.core.parallel_mgr import set_parallel_manager,enable_sequence_parallel
+
 from torchvision.utils import save_image
 from transformers import T5EncoderModel, T5Tokenizer
 from diffusers.schedulers import DDIMScheduler,PNDMScheduler
@@ -19,7 +21,6 @@ from diffusers.models import AutoencoderKLTemporalDecoder
 
 from opendit.utils.utils import all_exists, create_logger, merge_args, set_seed, str_to_dtype
 from opendit.core.pab_mgr import set_pab_manager
-from opendit.core.parallel_mgr import set_parallel_manager,enable_sequence_parallel
 from opendit.models.latte import LattePipeline,LatteT2V
 from opendit.models.opensora.datasets import ASPECT_RATIO_MAP,ASPECT_RATIOS,NUM_FRAMES_MAP,get_image_size,get_num_frames,save_sample
 from opendit.models.opensora import STDiT3_XL_2,OpenSoraVAE_V1_2,T5Encoder,RFLOW,text_preprocessing
@@ -407,7 +408,7 @@ class LattePipeLineNode:
             outfile = os.path.join(output_dir,prompt[:30].replace(" ", "_") + ".png")
             save_image(videos[0][0], outfile)
         else:
-            outfile = os.path.join(output_dir,prompt[:30].replace(" ", "_") + "_%04d" % time.time_ns() + ".mp4")
+            outfile = os.path.join(output_dir,prompt[:30].replace(" ", "_") + "_" + time.time_ns() + ".mp4")
             imageio.mimwrite(outfile,videos[0],fps=fps,)
         
         return (outfile, )
@@ -487,7 +488,7 @@ class OpenSoraPlanPipeLineNode:
             num_images_per_prompt=1,
             mask_feature=True,
         ).video
-        outfile = os.path.join(output_dir, f"{prompt[:30].replace(" ", "_")+ "_%04d" % time.time_ns()}.mp4")
+        outfile = os.path.join(output_dir, prompt[:30].replace(" ", "_")+ "_" + time.time_ns()+ ".mp4")
         imageio.mimwrite(
             outfile, videos[0], fps=fps, quality=9
         )  #

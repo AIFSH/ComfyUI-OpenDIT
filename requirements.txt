@@ -21,4 +21,5 @@ matplotlib
 accelerate
 diffusers
 transformers
-colossalai;platform_system=="linux"
+imageio
+colossalai;sys_platform == "linux"
